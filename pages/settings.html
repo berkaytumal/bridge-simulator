@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en" class="page">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../dist/style.css">
+</head>
+
+<body>
+    <h1>Settings</h1>
+
+    <div style="flex-grow: 1;overflow: scroll;padding-top: 20px;" id="devicesd">
+        <div style="display: flex;"> <label for="portinput" style="padding-top: 8px;">Localhost Port:</label>
+            <input type="number" name="portinput" id="portinput" min="0" max="65535">
+        </div>
+        <div style="display: flex;"> <label for="portinput" style="padding-top: 8px;">Default URL:</label>
+
+            <button class="ls">localhost</button><button class="ls">127.0.0.1</button>
+        </div>
+    </div>
+    <div style="text-align: right;" id="n"><button id="c">Cancel</button><button class="primary" id="s">Save</button>
+    </div>
+    <style>
+        #portinput {
+            border: 2px solid var(--accent);
+            border-radius: 0px;
+            font-size: 14px;
+            padding: 3px;
+            flex-grow: 1;
+            text-align: right;
+            height: 27px;
+        }
+
+
+        #devicesd {
+            text-align: center;
+            padding-bottom: 70px;
+        }
+
+        #devicesd>div {
+            height: 50px;
+        }
+
+        button.ls {
+            padding: 0px;
+            margin: 0px;
+            flex-grow: 1;
+            height: 40px;
+        }
+
+        label {
+            width: 160px;
+            text-align: left;
+        }
+    </style>
+    <script>document.body.addEventListener("contextmenu", (event) => { event.stopPropagation(), event.preventDefault() })</script>
+    <script src="../node_modules/jquery/dist/jquery.min.js"></script>
+    <script src="communication.js"></script>
+    <script>
+        $("#portinput").val(localStorage["bs_settings_port"] ? localStorage["bs_settings_port"] : 5000)
+        $("button.ls").eq((localStorage["bs_settings_localhostfix"] == "true") ? 1 : 0).addClass("primary")
+        $("button.ls").click(function () {
+            $("button.ls").removeClass("primary")
+            $(this).addClass("primary")
+        })
+        $("#s").click(function () {
+            localStorage.setItem("bs_settings_port", Number($("#portinput").val()))
+            localStorage.setItem("bs_settings_localhostfix", $("button.ls").eq(1).hasClass("primary"))
+            viewToMainMessage(["closepage"])
+        })
+        $("#c").click(function () {
+            const selecteddevice = $("div.model.selected").eq(0).attr("name")
+            viewToMainMessage(["closepage"])
+        })
+    </script>
+</body>
+
+</html>

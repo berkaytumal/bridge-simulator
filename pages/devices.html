@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en" class="page">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../dist/style.css">
+</head>
+
+<body>
+    <h1>Devices</h1>
+    <label for="brand">Choose a brand:</label>
+    <select name="brand" id="brandselector" disabled>
+
+        <option value="audi">Loading devices...</option>
+    </select>
+    <div style="flex-grow: 1;overflow: scroll;" id="devicesd">
+        devices here
+    </div>
+    <div style="text-align: right;" id="n">
+        <div id="m"><button>List</button><button class="primary">Gallery</button></div><button
+            id="c">Cancel</button><button class="primary" id="s">Select</button>
+    </div>
+    <style>
+        #n {
+            text-align: right;
+            position: absolute;
+            bottom: 20px;
+            width: calc(100% - 40px);
+        }
+
+        #m {
+            display: inline-block;
+            float: left;
+        }
+
+        #m button:nth-child(1) {
+            margin-right: 0px;
+        }
+
+        #m button:nth-child(2) {
+            margin-left: 0px;
+        }
+
+        #devicesd {
+            text-align: center;
+            mask: linear-gradient(0deg, transparent 1px, black 100px);
+            padding-bottom: 70px;
+        }
+
+        #devicesd div.model {
+            transition: .5s;
+            position: relative;
+            width: 114px;
+            height: 240px;
+            border: 1px solid rgb(127, 127, 127, 0.1);
+            margin: 5px;
+            float: left;
+        }
+
+        #devicesd div.model.selected {
+            border: 1px solid var(--accent-dark);
+            background: var(--accent);
+        }
+
+        #devicesd div.model:active {
+            transition: 0s;
+            transform: scale(0.9);
+            opacity: 0.5;
+        }
+
+        #devicesd div.model img.model-p {
+            transition: .5s;
+            position: absolute;
+            width: 90%;
+            left: 10px;
+            top: 10px;
+            width: calc(100% - 20px);
+            height: calc(100% - 60px);
+            object-fit: contain;
+        }
+
+        #devicesd div.model .model-n {
+            bottom: 0px;
+            position: absolute;
+            margin: 0px;
+            text-align: center;
+            width: 100%;
+        }
+
+        #devicesd.listview div.model {
+            width: 178px;
+            height: 30px;
+        }
+
+        #devicesd.listview div.model img.model-p {
+            opacity: 0;
+        }
+
+        #devicesd.listview div.model .model-n {
+            bottom: 4px;
+        }
+    </style>
+    <script src="../node_modules/jquery/dist/jquery.min.js"></script>
+    <script src="communication.js"></script>
+    <script>
+        window.loadeddevices = undefined
+        window.loadeddevicesmenu = []
+        window.lamenu = {}
+        console.log(loadeddevicesmenu)
+        $.getJSON("/devices.json", function (data) {
+            // Once the JSON is fetched successfully, data will contain the parsed JSON object
+            console.log(data); // Print the parsed JSON object to the console
+            lamenu = {}
+            data.forEach(element => {
+                // console.log(element)
+                const brand = element.device.split("-")[0]
+
+                if (!lamenu[brand]) lamenu[brand] = []
+                lamenu[brand].push(element)
+            });
+            console.log(loadeddevicesmenu)
+            loadeddevices = data
+            console.log(lamenu)
+            $("#brandselector").removeAttr("disabled").html("")
+            $("#brandselector").append(`<option value="all">All</option>`)
+            Object.keys(lamenu).forEach(brand => {
+                $("#brandselector").append(`<option value="${brand}">${brand.charAt(0).toUpperCase() + brand.slice(1)}</option>`)
+            });
+            $("#brandselector").val("samsung")
+            getBrand("samsung")
+        });
+        $("#brandselector").on("change", function () {
+            console.log("ee")
+            getBrand($("#brandselector").val())
+        })
+        function getBrand(brand) {
+            $("#devicesd").html("")
+            if (brand == "all") {
+                Object.keys(lamenu).forEach(brand => {
+                    lamenu[brand].forEach(model => {
+                        $("#devicesd").append(`<div class="model" name="${model.device}"><img src="/bezels/${model.device}.png" class="model-p"/><p class="model-n">${model.model}</p></div>`)
+                    });
+                });
+            } else {
+                lamenu[brand].forEach(model => {
+                    $("#devicesd").append(`<div class="model" name="${model.device}"><img src="/bezels/${model.device}.png" class="model-p"/><p class="model-n">${model.model}</p></div>`)
+                });
+            }
+
+            $("div.model").click(function () {
+                $("div.model").removeClass("selected")
+                $(this).addClass("selected")
+                $("#n > button:nth-child(3)").removeClass("disabled")
+            })
+            $("#n > button:nth-child(3)").addClass("disabled")
+        }
+        $("#m button").click(function () {
+            $("#m button").removeClass("primary")
+            $(this).addClass("primary")
+            if ($(this).index() == 0) {
+                $("#devicesd").addClass("listview")
+            } else {
+                $("#devicesd").removeClass("listview")
+            }
+        })
+
+        $("#s").click(function () {
+            const selecteddevice = $("div.model.selected").eq(0).attr("name")
+            viewToMainMessage(["select", selecteddevice,"closepage"])
+        })
+        $("#c").click(function () {
+            const selecteddevice = $("div.model.selected").eq(0).attr("name")
+            viewToMainMessage(["closepage"])
+        })
+    </script>
+    <script>document.body.addEventListener("contextmenu", (event) => { event.stopPropagation(), event.preventDefault() })</script>
+</body>
+
+</html>

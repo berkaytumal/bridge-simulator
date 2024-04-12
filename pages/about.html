@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en" class="page">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../dist/style.css">
+</head>
+
+<body>
+    <h1>About</h1>
+    <h3>Bridge Launcher</h3>
+    <p>An Android launcher that is a middleman between your HTML, JS and CSS and the Android system.<br>Requires Android
+        8 (API level 24).</p>
+    <h3>System structure</h3>
+    <p>The core of Bridge is the Bridge Launcher Android app. This app replaces your homescreen with a WebView housing a
+        HTML file of your choosing. Additionaly, the app exposes endpoints allowing you to load a list of apps installed
+        on the device and their icons (for example via fetch()).</p>
+    <p>Javascript code running inside the WebView is given access to a global variable called Bridge, through which it
+        can interact with Android system features and the launcher app. Examples include obtaining the height of the
+        status bar, launching apps, expanding the notification shade and plenty more.</p>
+    <p>Additionaly, the launcher app notifies Javascript of events (such as apps being installed/uninstalled and
+        permission state changes) by calling the global variable onBridgeEvent (if it is set to a function).</p>
+    <p>To allow you to have a WIP project without losing the ability to launch apps, Bridge provides a simple,
+        searchable app drawer that you can also open from the JS API.</p>
+    <h3>More Info</h3>
+    <a href="https://github.com/bridgelauncher">@bridgelauncher</a>
+    <a href="https://github.com/theothertored">@theothertored</a>
+    <script>document.body.addEventListener("contextmenu", (event) => { event.stopPropagation(), event.preventDefault() })</script>
+</body>
+
+</html>

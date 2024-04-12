@@ -6,6 +6,10 @@ yarn-debug.log*
 yarn-error.log*
 lerna-debug.log*
 .pnpm-debug.log*
+<<<<<<< HEAD
+=======
+.DS_Store
+>>>>>>> 1811117 (initial commit yay)
 
 # Diagnostic reports (https://nodejs.org/api/report.html)
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
@@ -40,6 +44,10 @@ build/Release
 
 # Dependency directories
 node_modules/
+<<<<<<< HEAD
+=======
+node_modules
+>>>>>>> 1811117 (initial commit yay)
 jspm_packages/
 
 # Snowpack dependency directory (https://snowpack.dev/)
@@ -127,4 +135,8 @@ dist
 .yarn/unplugged
 .yarn/build-state.yml
 .yarn/install-state.gz
+<<<<<<< HEAD
 .pnp.*
+=======
+.pnp.*
+>>>>>>> 1811117 (initial commit yay)
