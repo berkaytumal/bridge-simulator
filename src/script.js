@@ -1,7 +1,9 @@
 import { BridgeMock, createDefaultBridgeMockConfig } from '@bridgelauncher/api-mock';
-import jQuery from 'jquery';
+import jQuery from "./../assets/jquery/jquery.js";
 import Bowser from "bowser"; // ES6 (and TypeScript with --esModuleInterop enabled)
 window["$"] = jQuery
+window["jQuery"] = jQuery
+
 /*window.menubarentries = {
     file: [
         {
@@ -198,7 +200,6 @@ function closePages(now) {
 }
 window.onPageLoad = function onPageLoad(element) {
     $("#loader").removeClass("shown")
-    console.log(element, "yüklenmiş")
     $("iframe.pageview").addClass("shown")
     $("div.backdrop").remove()
     $("body").append(`<div class="backdrop in"></div>`)
@@ -210,11 +211,135 @@ window.openPage = function openPage(name) {
     $("#loader").addClass("shown")
     $("body").append(`<iframe class="pageview" onload="onPageLoad(this)" src="/pages/${name}.html" frameborder="0"></iframe>`)
 }
-function createDevice(devicename) {
-    console.log("DR3ETE", devicename)
+
+window.loadeddevices = undefined
+$.getJSON("/devices.json", function (data) {
+    // Once the JSON is fetched successfully, data will contain the parsed JSON object
+    loadeddevices = data
+    createDevice(
+        "samsung-galaxy-s21-ultra"
+    )
+
+});
+const getProperties = {
+    localhost: {
+        port: function () {
+            return localStorage["bs_settings_port"] ? localStorage["bs_settings_port"] : 5000
+        },
+        url: function () {
+            return (localStorage["bs_settings_localhostfix"] == "true") ? "127.0.0.1" : "localhost"
+        }
+    }
+
+}
+window.onViewError = function onViewError(e) {
+    // console.log(e)
+    alert("Couldn't load your local project, please check your settings!")
+    $(this).parent().remove()
+}
+window.createDevice = function createDevice(devicename) {
+    if (window.loadeddevices == undefined) {
+        alert("Oops :( Couldn't load the device.")
+    }
+    const devicefound = loadeddevices.filter(device => device.device == devicename)
+    if (devicefound.length != 1) {
+        alert("Oh no, this device doesnt even exist!? Log this error pls :O")
+    }
+    const device = devicefound[0]
+    $.ajax({
+        url: `http://${getProperties.localhost.url()}:${getProperties.localhost.port()}`,
+        type: 'HEAD',
+        error: onViewError,
+        success: function () {
+            $.get(`/masks/${device.device}.svg`, function (data) {
+
+                const img = new Image();
+                img.onload = function () {
+                    //  alert(this.width + 'x' + this.height);
+
+                    $('#container').append();
+                    const clippath = "clippath" + Date.now()
+                    var svg = data.documentElement.outerHTML
+                    svg = svg.replaceAll("viewport-mask1", clippath)
+                    $("body").append(svg)
+                    $("body").append(`<div class="devicebody" style="--width:${device["software-resolution"][0]};--height:${device["software-resolution"][1]};--bezelX:${device["bezel"][0]};--bezelY:${device["bezel"][1]};--bezelW:${device["bezel"][2]};--bezelH:${device["bezel"][2] * this.height / this.width};--clip-path:url(#${clippath})" >
+                <img src="/bezels/${device["device"]}.png"/>
+                <div class="maskiframe"><iframe src="http://${getProperties.localhost.url()}:${getProperties.localhost.port()}" frameborder="0"></iframe></div>
+                </div>`)
+
+
+                    $("div.devicebody > img").unbind()
+                    function coor2area(e) {
+                        const m_object = $(e.target)
+                        const size = 30
+                        const [width, height] = [m_object.width(), m_object.height()]
+                        if (e.clientX <= size && e.clientY <= size) {
+                            return 0
+                        } else if (e.clientX >= width - size && e.clientY <= size) {
+                            return 1
+                        } else if (e.clientX <= size && e.clientY >= height - size) {
+                            return 2
+                        } else if (e.clientX >= width - size && e.clientY >= height - size) {
+                            return 3
+                        } else if (e.clientX <= size) {
+                            return 6
+                        } else if (e.clientX >= width - size) {
+                            return 4
+                        } else if (e.clientY <= size) {
+                            return 7
+                        } else if (e.clientY >= width - size) {
+                            return 5
+                        } else {
+                            return none
+                        }
+                    }
+                    $("div.devicebody > img").on("pointerenter", function (e) {
+
+                    })
+                    $("body > div > img").on("pointermove", function (e) {
+                        console.log(coor2area(e))
+                        switch (coor2area(e)) {
+                            case 0:
+                                $(e.target).css("cursor", "nwse-resize")
+                                break;
+                            case 1:
+                                $(e.target).css("cursor", "nesw-resize")
+                                break;
+                            case 2:
+                                $(e.target).css("cursor", "nesw-resize")
+                                break;
+                            case 3:
+                                $(e.target).css("cursor", "nwse-resize")
+                                break;
+                            case 4:
+                                $(e.target).css("cursor", "ew-resize")
+                                break;
+                            case 6:
+                                $(e.target).css("cursor", "ew-resize")
+                                break;
+                            default:
+                                $(e.target).css("cursor", "default")
+                                break;
+                        }
+
+                    })
+                    $("div.devicebody > img").on("pointerdown", function (e) {
+
+                    })
+                    $("div.devicebody > img").on("pointerup", function (e) {
+
+                    })
+                }
+                img.src = `/bezels/${device["device"]}.png`;
+
+            }, 'xml').fail(function (jqXHR, textStatus, errorThrown) {
+                alert("Device file is corrupted! Log this error pls :O")
+            });
+        }
+    });
 }
 window.document.addEventListener('viewToMainMessage', function (e) {
-    console.log(e.detail) // outputs: {foo: 'bar'}
+    // console.log(e.detail) // outputs: {foo: 'bar'}
     try {
         switch (e.detail[0]) {
             case "select":
@@ -229,3 +354,9 @@ window.document.addEventListener('viewToMainMessage', function (e) {
 
     }
 }, false)
+
+
+
+
+
+

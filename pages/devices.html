@@ -15,7 +15,7 @@
         <option value="audi">Loading devices...</option>
     </select>
     <div style="flex-grow: 1;overflow: scroll;" id="devicesd">
-        devices here
+        Loading models...
     </div>
     <div style="text-align: right;" id="n">
         <div id="m"><button>List</button><button class="primary">Gallery</button></div><button
@@ -30,7 +30,6 @@
         }
 
         #m {
-            display: inline-block;
             float: left;
         }
 
@@ -101,16 +100,14 @@
             bottom: 4px;
         }
     </style>
-    <script src="../node_modules/jquery/dist/jquery.min.js"></script>
+    <script src="../assets/jquery/jquery.js"></script>
     <script src="communication.js"></script>
     <script>
         window.loadeddevices = undefined
         window.loadeddevicesmenu = []
         window.lamenu = {}
-        console.log(loadeddevicesmenu)
         $.getJSON("/devices.json", function (data) {
             // Once the JSON is fetched successfully, data will contain the parsed JSON object
-            console.log(data); // Print the parsed JSON object to the console
             lamenu = {}
             data.forEach(element => {
                 // console.log(element)
@@ -119,9 +116,7 @@
                 if (!lamenu[brand]) lamenu[brand] = []
                 lamenu[brand].push(element)
             });
-            console.log(loadeddevicesmenu)
             loadeddevices = data
-            console.log(lamenu)
             $("#brandselector").removeAttr("disabled").html("")
             $("#brandselector").append(`<option value="all">All</option>`)
             Object.keys(lamenu).forEach(brand => {
@@ -131,7 +126,6 @@
             getBrand("samsung")
         });
         $("#brandselector").on("change", function () {
-            console.log("ee")
             getBrand($("#brandselector").val())
         })
         function getBrand(brand) {
