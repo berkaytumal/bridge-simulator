@@ -10,6 +10,8 @@
       --accent: #8dbdff;
     }
   }
+  --jumpanim: cubic-bezier(0.33, 1.27, 0.41, 1);
+  --jump2anim: cubic-bezier(0.3, 2, 0.4, 1);
 }
 
 @mixin prefix($property, $value) {
@@ -234,6 +236,8 @@ body {
   position: fixed;
   left: 0;
   top: 0;
+  z-index: 99999;
+
 }
 
 .menu .menu {
@@ -326,7 +330,6 @@ html.page body {
 
   background: transparent;
   box-shadow: 0px 0px 0px 1000px black;
-
   body {
     mask: linear-gradient(
       0deg,
@@ -443,6 +446,7 @@ button {
 }
 
 div.devicebody {
+  transition: transform 0.5s var(--jump2anim);
   position: fixed;
   will-change: transform;
   left: 0px;
@@ -450,6 +454,32 @@ div.devicebody {
   width: calc(var(--width) * var(--bezelW) * 1px);
   height: calc(var(--width) * var(--bezelH) * 1px);
 
+  .loading {
+    opacity: 0;
+  }
+  &.nobutton{
+    div.bridgebutton{
+      display: none;
+    }
+  }
+  &.nowallpaper{
+    .wallpaper, .livewallpaper{
+      display: none;
+    }
+  }
+  &:not(.loading) {
+    animation: deviceloaded 0.5s var(--jumpanim) forwards;
+    @keyframes deviceloaded {
+      from {
+        opacity: 0;
+        transform: var(--init) scale(calc(var(--scale) * 0.8));
+      }
+      to {
+        opacity: 1;
+        transform: var(--init) scale(var(--scale));
+      }
+    }
+  }
   .maskiframe {
     position: absolute;
     left: calc((var(--bezelX)) * 1px);
@@ -459,19 +489,238 @@ div.devicebody {
     width: calc(var(--width) * 1px);
     height: calc(var(--height) * 1px);
     transform: translateX(-50%) translateY(-50%);
-    background-color: red;
+    background-color: black;
     clip-path: var(--clip-path);
     overflow: hidden;
     opacity: 1;
+    div.bridgebutton{
+    
+      position: absolute;
+      right: 10px;
+      bottom: 10px;
+      width: 50px;
+      height: 50px;
+      background: white;
+      background-image: url(/assets/bridge.svg);
+      border-radius: 15px;
+      box-shadow: 0px 5px 5px #00000047;
+      background-size: 45%;
+      background-position: center;
+      background-repeat: no-repeat;
+      transition: .5s;
+      &:active{
+        transition: 0s;
+        filter: brightness(0.75);
+      }
+    }
+    img.wallpaper{
+      position: absolute;
+      left: 0px;
+      top: 0px;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: 50%;
+      z-index: -1;
+    }
+    div.wallpaperpicker {
+      &::before {
+        position: absolute;
+        z-index: -1;
+        content: "";
+        width: 100%;
+        height: 100%;
+        backdrop-filter: brightness(0.75);
+        animation: wallpaperpickerenter 0.2s;
+      }
+      &.hide::before {
+        animation: wallpaperpickerleave 0.2s forwards;
+      }
+      position: absolute;
+      left: 0%;
+      top: 0%;
+      height: 100%;
+      width: 100%;
+      z-index: 99;
+      @keyframes wallpaperpickerenter {
+        to {
+          backdrop-filter: brightness(0.75);
+        }
+        from {
+          backdrop-filter: brightness(1);
+        }
+      }
+      @keyframes wallpaperpickerleave {
+        from {
+          backdrop-filter: brightness(0.75);
+        }
+        to {
+          backdrop-filter: brightness(1);
+        }
+      }
+      &.hide {
+        div.wallpaperpickerpage {
+          animation: wallpaperpickerpageleave 0.5s
+            cubic-bezier(0.075, 0.82, 0.165, 1) forwards;
+        }
+      }
+      div.wallpaperpickerpage {
+        padding: 5px;
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        width: 330px;
+        max-width: calc(100% - 20px);
+        height: max-content;
+        transform: translateX(-50%) translateY(-50%);
+        border-radius: 20px;
+        animation: wallpaperpickerpageenter 0.5s
+          cubic-bezier(0.075, 0.82, 0.165, 1);
 
+        @keyframes wallpaperpickerpageenter {
+          from {
+            transform: translateX(-50%) translateY(-50%) scale(0.9);
+          }
+          to {
+            transform: translateX(-50%) translateY(-50%);
+          }
+        }
+        @keyframes wallpaperpickerpageleave {
+          from {
+            transform: translateX(-50%) translateY(-50%);
+          }
+          to {
+            transform: translateX(-50%) translateY(-50%) scale(1.1);
+            opacity: 0;
+          }
+        }
+        &::before {
+          left: 0px;
+          top: 0px;
+          position: absolute;
+          z-index: -1;
+          content: "";
+          width: 100%;
+          height: 100%;
+          backdrop-filter: brightness(1.5) contrast(1.2) blur(20px) saturate(2);
+          background-color: rgb(255, 255, 255, 0.3);
+          border-radius: 20px;
+          @media (prefers-color-scheme: dark) {
+            background-color: rgb(0, 0, 0, 0.5);
+          }
+        }
+        box-shadow: inset 0px 0px 0px 1px rgb(127, 127, 127, 0.1),
+          0px 20px 50px rgba(0, 0, 0, 0.25);
+        .item {
+          &:active {
+            transition: 0s;
+            transform: scale(0.9);
+            opacity: 0.5;
+            backdrop-filter: contrast(2) !important;
+          }
+          transition: 0.5s;
+          overflow: hidden;
+          width: 100px;
+          height: 100px;
+          position: relative;
+          border-radius: 10px;
+          display: inline-block;
+          float: left;
+          margin: 5px;
+          img {
+            width: 100px;
+            height: 100px;
+            position: relative;
+            pointer-events: none;
+          }
+          &.isv {
+            backdrop-filter: contrast(1.2);
+          }
+          svg {
+            @media (prefers-color-scheme: dark) {
+              & {
+                fill: rgb(255, 255, 255, 0.5);
+              }
+            }
+            pointer-events: none;
+            fill: rgb(0, 0, 0, 0.5);
+            width: 60px;
+            height: 60px;
+            left: calc(50% - 30px);
+            top: calc(50% - 30px);
+            position: absolute;
+          }
+        }
+      }
+    }
+    div.toastmessage {
+      color: white;
+      position: absolute;
+      z-index: 2;
+      left: 50%;
+      bottom: 50px;
+      transform: translateX(-50%);
+      pointer-events: none;
+      background: rgb(61, 61, 61, 0.9);
+      padding: 10px;
+      height: auto;
+      box-sizing: border-box;
+      border-radius: 20px;
+      box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.3);
+      max-width: 80%;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      opacity: 0;
+      &.short {
+        animation: toastshort 2s var(--jumpanim) forwards;
+      }
+      &.long {
+        animation: toastlong 4s var(--jumpanim) forwards;
+      }
+    }
+    @keyframes toastshort {
+      0% {
+        opacity: 0;
+        transform: translateY(90px) translateX(-50%);
+      }
+      20% {
+        opacity: 1;
+        transform: translateY(0px) translateX(-50%);
+      }
+      90% {
+        opacity: 1;
+        transform: translateY(0px) translateX(-50%);
+      }
+      100% {
+        opacity: 0;
+        transform: translateY(90px) translateX(-50%);
+      }
+    }
+    @keyframes toastlong {
+      0% {
+        opacity: 0;
+        transform: translateY(90px) translateX(-50%);
+      }
+      10% {
+        opacity: 1;
+        transform: translateY(0px) translateX(-50%);
+      }
+      95% {
+        opacity: 1;
+        transform: translateY(0px) translateX(-50%);
+      }
+      100% {
+        opacity: 0;
+        transform: translateY(90px) translateX(-50%);
+      }
+    }
     iframe {
       position: absolute;
       left: 0px;
       top: 0px;
       width: 100%;
       height: 100%;
-      opacity:1;
-
+      opacity: 1;
     }
   }
   img {
@@ -480,5 +729,21 @@ div.devicebody {
     top: 0px;
     width: calc(var(--width) * var(--bezelW) * 1px);
     height: calc(var(--width) * var(--bezelH) * 1px);
+  }
+}
+
+canvas {
+  &.livewallpaper {
+    background: url(/assets/grid.webp);
+    background-size: 10px;
+    clip-path: var(--clip-path);
+    .maskiframe > & {
+      position: absolute;
+      left: 0px !important;
+      top: 0px !important;
+      width: 100%;
+      height: 100%;
+      z-index: -2;
+    }
   }
 }

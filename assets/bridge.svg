@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<svg viewBox="0 0 50 50" xmlns="http://www.w3.org/2000/svg">
+<svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
   <defs>
     <linearGradient id="color-0">
       <title>accent</title>
-      <stop style="stop-color: rgb(13, 114, 255);"/>
+      <stop style="stop-color: rgb(0, 0, 0);"/>
     </linearGradient>
     <mask id="mask-0">
       <ellipse style="filter: none; fill: rgb(255, 255, 255);" cx="250" cy="250" rx="155" ry="155"/>

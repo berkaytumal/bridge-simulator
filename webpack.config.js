@@ -1,14 +1,15 @@
 const path = require('path');
 
-const mode = 'development';
+const development = true;
 
 module.exports = {
-  mode: "development",
+  mode: development ? "development" : "production",
   entry: {
-    main: './src/script.js'
+    script: './src/script.js',
+    bridgemock: './src/bridgemock.js'
   },
   output: {
     path: path.resolve(__dirname, 'dist'),
-    filename: './script.js',
+    filename: './[name].js',
   }
 };
