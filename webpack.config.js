@@ -1,4 +1,5 @@
 const path = require('path');
+const WebpackShellPluginNext = require('webpack-shell-plugin-next');
 
 const development = true;
 
@@ -11,5 +12,11 @@ module.exports = {
   output: {
     path: path.resolve(__dirname, 'dist'),
     filename: './[name].js',
-  }
+  },
+  plugins: [
+    new WebpackShellPluginNext({
+      onBuildStart: 'echo "===> Starting packing with WEBPACK 5"',
+      onAfterDone: 'node sri.js'
+    })
+  ]
 };

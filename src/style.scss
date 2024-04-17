@@ -12,6 +12,7 @@
   }
   --jumpanim: cubic-bezier(0.33, 1.27, 0.41, 1);
   --jump2anim: cubic-bezier(0.3, 2, 0.4, 1);
+  --jump3anim: cubic-bezier(0.3, 1.5, 0.5, 1);
 }
 
 @mixin prefix($property, $value) {
@@ -20,8 +21,10 @@
   -moz-#{$property}: $value; // Standard property declaration
 }
 * {
-  @include prefix(user-drag, none);
-  @include prefix(user-select, none);
+  &:not(code) {
+    @include prefix(user-drag, none);
+    @include prefix(user-select, none);
+  }
   cursor: default;
   font-family: JetBrains Mono;
   outline: none;
@@ -37,6 +40,7 @@ body {
   height: 100%;
   padding: 0px;
   margin: 0px;
+  touch-action: none;
 }
 
 body {
@@ -237,7 +241,6 @@ body {
   left: 0;
   top: 0;
   z-index: 99999;
-
 }
 
 .menu .menu {
@@ -446,38 +449,74 @@ button {
 }
 
 div.devicebody {
-  transition: transform 0.5s var(--jump2anim);
+  transition: transform 0.5s var(--jump3anim);
   position: fixed;
   will-change: transform;
   left: 0px;
   top: 0px;
   width: calc(var(--width) * var(--bezelW) * 1px);
   height: calc(var(--width) * var(--bezelH) * 1px);
-
-  .loading {
-    opacity: 0;
+  &.exit {
+    animation: deviceexit 0.25s forwards;
   }
-  &.nobutton{
-    div.bridgebutton{
+  @keyframes deviceexit {
+    to {
+      opacity: 0;
+      transform: var(--init) scale(calc(var(--scale) * 0.25));
+    }
+    from {
+      opacity: 1;
+      transform: var(--init) scale(var(--scale));
+    }
+  }
+  &.loading {
+    opacity: 1;
+    .maskiframe > * {
+      opacity: 0 !important;
+    }
+    .maskiframe {
+      background-image: url(../assets/loading2.gif);
+      background-position: center;
+      background-size: 100px;
+      background-repeat: no-repeat;
+    }
+  }
+  &.nobutton {
+    div.bridgebutton {
       display: none;
     }
   }
-  &.nowallpaper{
-    .wallpaper, .livewallpaper{
+  div.devicenavigationbar {
+    position: absolute;
+    left: 0px;
+    bottom: 0px;
+    width: 100%;
+    height: calc(100% * var(--inset1));
+    background: red;
+  }
+  div.devicestatusbar {
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    width: 100%;
+    height: calc(100% * var(--inset0));
+    background: red;
+  }
+  &.nowallpaper {
+    .wallpaper,
+    .livewallpaper {
       display: none;
     }
   }
-  &:not(.loading) {
-    animation: deviceloaded 0.5s var(--jumpanim) forwards;
-    @keyframes deviceloaded {
-      from {
-        opacity: 0;
-        transform: var(--init) scale(calc(var(--scale) * 0.8));
-      }
-      to {
-        opacity: 1;
-        transform: var(--init) scale(var(--scale));
-      }
+  animation: deviceloaded 0.5s var(--jumpanim) forwards;
+  @keyframes deviceloaded {
+    from {
+      opacity: 0;
+      transform: var(--init) scale(calc(var(--scale) * 0.8));
+    }
+    to {
+      opacity: 1;
+      transform: var(--init) scale(var(--scale));
     }
   }
   .maskiframe {
@@ -493,8 +532,7 @@ div.devicebody {
     clip-path: var(--clip-path);
     overflow: hidden;
     opacity: 1;
-    div.bridgebutton{
-    
+    div.bridgebutton {
       position: absolute;
       right: 10px;
       bottom: 10px;
@@ -507,13 +545,13 @@ div.devicebody {
       background-size: 45%;
       background-position: center;
       background-repeat: no-repeat;
-      transition: .5s;
-      &:active{
+      transition: 0.5s;
+      &:active {
         transition: 0s;
         filter: brightness(0.75);
       }
     }
-    img.wallpaper{
+    img.wallpaper {
       position: absolute;
       left: 0px;
       top: 0px;
@@ -729,6 +767,7 @@ div.devicebody {
     top: 0px;
     width: calc(var(--width) * var(--bezelW) * 1px);
     height: calc(var(--width) * var(--bezelH) * 1px);
+    filter: drop-shadow(rgba(0, 0, 0, 0.4) 0px 20px 20px);
   }
 }
 
@@ -746,4 +785,12 @@ canvas {
       z-index: -2;
     }
   }
+}
+
+code ,pre{
+  @include prefix(user-select, all);
+  background: rgb(127, 127, 127, 0.1);
+  width: max-content;
+  padding: 5px;
+  border: solid 2px rgb(127, 127, 127, 0.5);
 }

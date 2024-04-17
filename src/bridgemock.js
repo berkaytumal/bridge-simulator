@@ -1,3 +1,8 @@
+const queryString = window.location.search;
+const urlParams = new URLSearchParams(queryString);
+var deviceid = urlParams.get('id')
+
+console.log("INJEXTED")
 const { BridgeMock, createDefaultBridgeMockConfig } = require('@bridgelauncher/api-mock');
 window.BridgeMock = BridgeMock
 window.createDefaultBridgeMockConfig = createDefaultBridgeMockConfig
@@ -12,41 +17,43 @@ backupThese.forEach(funcname => {
 function gel_da(params) {
 
 }
+
+var deviceid
 var newFunc = {
     sendWallpaperTap: function (x, y) {
-        //  console.log(window.frameElement.title)
+        //  console.log(deviceid)
         Bridge["sendWallpaperTap" + "backup"](x, y)
 
-        window.parent.postMessage({ message: ["bridgecommand", "sendWallpaperTap"], iframe: window.frameElement.title, pos: [x, y] }, '*');
+        window.parent.postMessage({ message: ["bridgecommand", "sendWallpaperTap"], iframe: deviceid, pos: [x, y] }, '*');
         // console.log(`${this._prefix} sendWallpaperTap: x = ${x}, y = ${y}`);
     },
     showToast: function (message, long) {
-        //  console.log(window.frameElement.title)
+        //  console.log(deviceid)
         Bridge["showToast" + "backup"](message, long)
-        window.parent.postMessage({ message: ["bridgecommand", "showToast"], iframe: window.frameElement.title, input: { message: message, long: long } }, '*');
+        window.parent.postMessage({ message: ["bridgecommand", "showToast"], iframe: deviceid, input: { message: message, long: long } }, '*');
         // console.log(`${this._prefix} sendWallpaperTap: x = ${x}, y = ${y}`);
     },
     requestChangeSystemWallpaper: function () {
         console.log("[BridgeMock] requestChangeSystemWallpaper")
-        window.parent.postMessage({ message: ["bridgecommand", "requestChangeSystemWallpaper"], iframe: window.frameElement.title }, '*');
+        window.parent.postMessage({ message: ["bridgecommand", "requestChangeSystemWallpaper"], iframe: deviceid }, '*');
     },
     setWallpaperOffsets: function (x, y) {
         Bridge["setWallpaperOffsets" + "backup"](x, y)
-        window.parent.postMessage({ message: ["bridgecommand", "setWallpaperOffsets"], iframe: window.frameElement.title, pos: [x, y] }, '*');
+        window.parent.postMessage({ message: ["bridgecommand", "setWallpaperOffsets"], iframe: deviceid, pos: [x, y] }, '*');
 
     },
     requestSetDrawSystemWallpaperBehindWebViewEnabled: function (enabled) {
         Bridge["requestSetDrawSystemWallpaperBehindWebViewEnabled" + "backup"](enabled)
-        window.parent.postMessage({ message: ["bridgecommand", "requestSetDrawSystemWallpaperBehindWebViewEnabled"], iframe: window.frameElement.title, enabled: enabled }, '*');
+        window.parent.postMessage({ message: ["bridgecommand", "requestSetDrawSystemWallpaperBehindWebViewEnabled"], iframe: deviceid, enabled: enabled }, '*');
 
     },
     requestSetBridgeButtonVisibility: function (enabled) {
         Bridge["requestSetBridgeButtonVisibility" + "backup"](enabled)
-        window.parent.postMessage({ message: ["bridgecommand", "requestSetBridgeButtonVisibility"], iframe: window.frameElement.title, enabled: enabled }, '*');
+        window.parent.postMessage({ message: ["bridgecommand", "requestSetBridgeButtonVisibility"], iframe: deviceid, enabled: enabled }, '*');
 
     },
     requestOpenBridgeSettings: function () {
-        window.parent.postMessage({ message: ["bridgecommand", "requestOpenBridgeSettings"], iframe: window.frameElement.title }, '*');
+        window.parent.postMessage({ message: ["bridgecommand", "requestOpenBridgeSettings"], iframe: deviceid }, '*');
 
     }
 }
@@ -54,7 +61,8 @@ Object.keys(newFunc).forEach(funcname => {
     window.Bridge[funcname] = newFunc[funcname]
 });
 
-window.addEventListener("load", function () {
+    console.log("INJEXTED")
+
     const injectstyle = document.createElement("style")
     injectstyle.textContent = bridgemockstyle
     document.head.appendChild(injectstyle)
@@ -67,20 +75,20 @@ window.addEventListener("load", function () {
     }
     try {
         Bridge
-        window.parent.postMessage({ message: ["bridgecommand", "deviceLoaded"], iframe: window.frameElement.title }, '*');
+        window.parent.postMessage({ message: ["bridgecommand", "deviceLoaded"], iframe: deviceid }, '*');
         window.parent.postMessage({
-            message: ["bridgecommand", "setWallpaperOffsets"], iframe: window.frameElement.title, pos: [Bridge.wallpaperOffsetX, Bridge.wallpaperOffsetY]
+            message: ["bridgecommand", "setWallpaperOffsets"], iframe: deviceid, pos: [Bridge.wallpaperOffsetX, Bridge.wallpaperOffsetY]
         }, '*');
-        window.parent.postMessage({ message: ["bridgecommand", "requestSetDrawSystemWallpaperBehindWebViewEnabled"], iframe: window.frameElement.title, enabled: Bridge.drawSystemWallpaperBehindWebViewEnabled }, '*');
-        window.parent.postMessage({ message: ["bridgecommand", "requestSetBridgeButtonVisibility"], iframe: window.frameElement.title, enabled: Bridge.bridgeButtonVisibility }, '*');
+        window.parent.postMessage({ message: ["bridgecommand", "requestSetDrawSystemWallpaperBehindWebViewEnabled"], iframe: deviceid, enabled: Bridge.drawSystemWallpaperBehindWebViewEnabled }, '*');
+        window.parent.postMessage({ message: ["bridgecommand", "requestSetBridgeButtonVisibility"], iframe: deviceid, enabled: Bridge.bridgeButtonVisibility }, '*');
 
     } catch (error) {
-        window.parent.postMessage({ message: ["bridgecommand", "deviceFail"], iframe: window.frameElement.title }, '*');
-
+        console.log("post error")
+        window.parent.postMessage({ message: ["bridgecommand", "deviceFail"], iframe: deviceid }, '*');
+console.error(error)
     }
 
 
-})
     `  <div class="wallpaperpicker">
 <div class="wallpaperpickerpage">
 <h1>Wallpapers</h1>

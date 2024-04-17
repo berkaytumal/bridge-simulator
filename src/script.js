@@ -229,11 +229,12 @@ const getProperties = {
         }
     },
     wallpaper: function () {
-        return localStorage["bs_settings_wallpaper"] ? localStorage["bs_settings_wallpaper"] : 0
+        return localStorage["bs_settings_wallpaper"] ? localStorage["bs_settings_wallpaper"] : "0"
 
     }
 
 }
+window.getProperties = getProperties
 /*
 window.onViewError = function onViewError(e, device) {
     // console.log(e)
@@ -326,7 +327,7 @@ window.onViewError = function onViewError(e, device) {
     });
     // $(this).parent().remove()
 }*/
-window.deviceTimeout = 5000
+window.deviceTimeout = 100000
 function crurl(url, device) {
     $.get(`/masks/${device.device}.svg`, function (data) {
 
@@ -341,7 +342,7 @@ function crurl(url, device) {
             var svg = data.documentElement.outerHTML
             svg = svg.replaceAll("viewport-mask1", clippath)
             $("body").append(svg)
-            $("body").append(`<div class="devicebody loading" id="${id}" style="opacity:0;--width:${device["software-resolution"][0]};--height:${device["software-resolution"][1]};--bezelX:${device["bezel"][0]};--bezelY:${device["bezel"][1]};--bezelW:${device["bezel"][2]};--bezelH:${device["bezel"][2] * this.height / this.width};--clip-path:url(#${clippath})" >
+            $("body").append(`<div class="devicebody loading" id="${id}" style="--inset0:${device.insets[0]};--inset1:${device.insets[1]};--width:${device["software-resolution"][0]};--height:${device["software-resolution"][1]};--bezelX:${device["bezel"][0]};--bezelY:${device["bezel"][1]};--bezelW:${device["bezel"][2]};--bezelH:${device["bezel"][2] * this.height / this.width};--clip-path:url(#${clippath})" >
         <img src="/bezels/${device["device"]}.png"/>
         <div class="maskiframe"><iframe src="${url}" title="${id}" frameborder="0"></iframe>
           
@@ -350,67 +351,36 @@ function crurl(url, device) {
         <div class="devicestatusbar"></div>
         </div>
         </div>`)
+            console.log(device)
             const md = $("body > div.devicebody").last()
             bringToFront(md[0])
             setTimeout(() => {
                 if (!window[id + "loaded"]) {
-                    md.remove()
-                    alert("Error, device timeout!")
                     console.error("Device took too long to answer!")
+
+                    // alert("Error, device timeout!")
+                    md.addClass("exit")
+                    setTimeout(() => {
+                        md.remove()
+                    }, 250);
                 }
             }, window.deviceTimeout);
+
             renewWallpapers(md)
             md[0].devicesize = [md.width(), md.height()]
             md[0].deviceposition = [window.innerWidth / 2, window.innerHeight / 2]
             md[0].devicescale = 1
-            if (md[0].devicesize[0] > window.innerWidth || md[0].devicesize[1] > window.innerHeight) {
-                if (md[0].devicesize[0] / md[0].devicesize[1] > window.innerWidth * 0.9 / window.innerHeight * 0.9) {
-                    console.log(1)
-                    md[0].devicescale = window.innerWidth * 0.9 / md[0].devicesize[0]
-                } else {
-                    console.log(2)
-                    md[0].devicescale = window.innerHeight * 0.9 / md[0].devicesize[1]
-                }
-            } else {
-                console.log("küçük")
-            }
-
             md[0].devicereposition = function () {
                 md.css({ left: 0, top: 0, transform: `translateX(${md[0].deviceposition[0]}px) translateY(${md[0].deviceposition[1]}px) translateX(${-md[0].devicesize[0] / 2}px) translateY(${-md[0].devicesize[1] / 2}px) scale(${md[0].devicescale})` })
+                md.css({ "--scale": md[0].devicescale, "--init": `translateX(${md[0].deviceposition[0]}px) translateY(${md[0].deviceposition[1]}px) translateX(${-md[0].devicesize[0] / 2}px) translateY(${-md[0].devicesize[1] / 2}px)` })
+
             }
-            md.css({ "--scale": md[0].devicescale, "--init": `translateX(${md[0].deviceposition[0]}px) translateY(${md[0].deviceposition[1]}px) translateX(${-md[0].devicesize[0] / 2}px) translateY(${-md[0].devicesize[1] / 2}px)` })
-            md[0].devicereposition()
+
+            ensureSafeArea()
+
             const yeniframe = $("div.devicebody > div.maskiframe").last().children("iframe")[0]
-            yeniframe.src = url
+            yeniframe.src = url + `?id=${id}`
             var success = false
-            try {
-
-                var script = document.createElement('script');
-                // Set the source of the script to the script you want to inject
-                script.src = window.location.href + "dist/bridgemock.js" // Or set the script content directly: script.textContent = 'alert("Injected script executed!");';
-                // Append the script to the iframe's document body
-                yeniframe.contentWindow.document.body.appendChild(script);
-                success = true
-            } catch (error) {
-
-            }
-            var tryagain = setTimeout(() => {
-                try {
-                    if (success) {
-                        clearTimeout(tryagain)
-                        return
-                    }
-                    var script = document.createElement('script');
-                    // Set the source of the script to the script you want to inject
-                    script.src = window.location.href + "dist/bridgemock.js" // Or set the script content directly: script.textContent = 'alert("Injected script executed!");';
-                    // Append the script to the iframe's document body
-                    yeniframe.contentWindow.document.body.appendChild(script);
-                    tryagain = true
-                } catch (error) {
-
-                }
-            }, 0);
-
             function coor2area(e) {
                 const m_object = $(e.target)
                 const size = 30
@@ -468,7 +438,6 @@ function crurl(url, device) {
                     if (element.mdt == 1) {
                         const hipotenus = Math.pow(Math.pow(e.pageX - element.parentElement.deviceposition[0], 2) + Math.pow(element.parentElement.deviceposition[1] - e.pageY, 2), 0.5)
                         element.parentElement.devicescale = element.pdfrs / (element.pdfrl / hipotenus)
-                        element.parentElement.devicescale = element.parentElement.devicescale < .3 ? .3 : element.parentElement.devicescale
 
                         /*  if (element.parentElement.devicesize[0] > window.innerWidth || md[0].devicesize[1] > window.innerHeight) {
                               if (md[0].devicesize[0] / md[0].devicesize[1] > window.innerWidth * 0.9 / window.innerHeight * 0.9) {
@@ -482,20 +451,25 @@ function crurl(url, device) {
                               console.log("küçük")
                           }*/
                         element.parentElement.devicereposition()
+
                     } else if (element.mdt == 2) {
                         console.log("aaa")
                         console.log(element.pddl, element.pdml)
                         element.parentElement.deviceposition = [element.pddl[0] + e.pageX - element.pdml[0], element.pddl[1] + e.pageY - element.pdml[1]]
                         element.parentElement.devicereposition()
-                    }
 
+                    }
                 })
 
             })
             $(window).on("pointerup", function (e) {
                 $("body > div > img").each(function (index, element) {
+
                     element.pdfr = false
+
                 })
+                ensureSafeArea()
+
                 $("div.devicebody > div.maskiframe > iframe").css("pointer-events", "")
             })
 
@@ -529,6 +503,35 @@ function crurl(url, device) {
         alert("Device file is corrupted! Log this error pls :O")
     });
 }
+function ensureSafeArea() {
+    const padding = 10
+
+    const md = $("body > div.devicebody").each(function (index, md) {
+        //scale
+        md.devicereposition()
+        md.devicescale = md.devicesize[0] * md.devicescale > window.innerWidth - padding * 2 ? (window.innerWidth - padding * 2) / md.devicesize[0] : md.devicescale
+        md.devicescale = md.devicesize[1] * md.devicescale > window.innerHeight - padding * 2 ? (window.innerHeight - padding * 2) / md.devicesize[1] : md.devicescale
+
+        md.devicereposition()
+        //position
+        md.deviceposition[0] = md.deviceposition[0] - md.devicesize[0] * md.devicescale / 2 < 0 - 10 ? md.devicesize[0] * md.devicescale / 2 + 10 : md.deviceposition[0]
+        md.deviceposition[1] = md.deviceposition[1] - md.devicesize[1] * md.devicescale / 2 < 0 - 10 ? md.devicesize[1] * md.devicescale / 2 + 10 : md.deviceposition[1]
+        md.deviceposition[0] = md.deviceposition[0] + md.devicesize[0] * md.devicescale / 2 > window.innerWidth - padding ? window.innerWidth - md.devicesize[0] * md.devicescale / 2 - padding : md.deviceposition[0]
+        md.deviceposition[1] = md.deviceposition[1] + md.devicesize[1] * md.devicescale / 2 > window.innerHeight - padding ? window.innerHeight - md.devicesize[1] * md.devicescale / 2 - padding : md.deviceposition[1]
+        md.devicereposition()
+
+        md.devicescale = md.devicescale < .3 ? .3 : md.devicescale
+        md.devicereposition()
+
+
+    })
+
+
+
+}
+$(window).on("resize", function () {
+    ensureSafeArea()
+})
 function bringToFront(element) {
     let boxes = $('.devicebody');
     let maxZIndex = Math.max.apply(null, boxes.map(function () {
@@ -910,3 +913,11 @@ window.renewWallpapers = function renewWallpapers(devicebody) {
 
     })
 }
+
+fetch('/dist/sri')
+    .then(response => response.text())
+    .then(hash => {
+      console.log("hash b",hash)
+      $("#importcode").text(`<script src="${window.location.origin}/dist/bridgemock.js"\n        integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4="\n        crossorigin="anonymous"></script>`)
+    })
+    .catch(error => console.error('Error loading SRI hash:', error));
