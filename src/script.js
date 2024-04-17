@@ -918,6 +918,6 @@ fetch('/dist/sri')
     .then(response => response.text())
     .then(hash => {
       console.log("hash b",hash)
-      $("#importcode").text(`<script src="${window.location.origin}/dist/bridgemock.js"\n        integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4="\n        crossorigin="anonymous"></script>`)
+      $("#importcode").text(`<script src="${window.location.origin}/dist/bridgemock.js"\n        integrity="${hash}"\n        crossorigin="anonymous"></script>`)
     })
     .catch(error => console.error('Error loading SRI hash:', error));
